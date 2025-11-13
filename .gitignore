@@ -1,0 +1,11 @@
+# Ignore compiled binaries
+job_scheduler
+*.out
+*.o
+*.exe
+
+# Ignore macOS files
+.DS_Store
+
+# Build folder (if you create one later)
+build/
