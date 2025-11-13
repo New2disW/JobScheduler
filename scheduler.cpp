@@ -1,6 +1,4 @@
 // scheduler.cpp
-// Compile with: g++ -std=c++17 -O2 scheduler.cpp main.cpp -pthread -o scheduler
-
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -11,18 +9,17 @@
 #include <queue>
 #include <thread>
 #include <vector>
-#include <chrono>
 
 struct Job {
-    int priority;               // Higher = run earlier
-    uint64_t seq;               // Sequence number for FIFO inside same priority
-    std::function<void()> func; // The actual task to run
+    int priority;
+    uint64_t seq;
+    std::function<void()> func;
 
     struct Compare {
         bool operator()(Job const& a, Job const& b) const {
             if (a.priority == b.priority)
-                return a.seq > b.seq;  // smaller seq first
-            return a.priority < b.priority; // higher priority first
+                return a.seq > b.seq;  
+            return a.priority < b.priority;
         }
     };
 };
@@ -36,7 +33,7 @@ public:
     }
 
     ~JobScheduler() {
-        shutdown();  // Ensure proper cleanup
+        shutdown();
     }
 
     template <typename Fn, typename... Args>
@@ -65,12 +62,13 @@ public:
         return fut;
     }
 
+    // ✅ THIS FUNCTION WAS MISSING IN YOUR VERSION
     void shutdown() {
         bool expected = false;
         if (!stopFlag.compare_exchange_strong(expected, true))
             return;
 
-        cv_.notify_all();  
+        cv_.notify_all();
         for (auto& t : threads)
             if (t.joinable()) t.join();
     }
@@ -110,6 +108,5 @@ private:
     std::condition_variable cv_;
     std::atomic<bool> stopFlag;
     std::atomic<uint64_t> seqCounter;
-
     std::vector<std::thread> threads;
 };
